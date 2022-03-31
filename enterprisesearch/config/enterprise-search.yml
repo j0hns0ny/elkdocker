@@ -1,0 +1,10 @@
+---
+ent_search.listen_host: 0.0.0.0
+allow_es_settings_modification: true
+secret_management.encryption_keys: ['q3t6w9z$C&F)J@Mc8fTjWnZr4u7x!A%D']
+elasticsearch.username: ${ELASTIC_USERNAME}
+elasticsearch.password: ${ELASTIC_PASSWORD}
+elasticsearch.host: ${ELASTICSEARCH_HOST_PORT}
+elasticsearch.ssl.enabled: true
+elasticsearch.ssl.certificate_authority: "/certs/ca.crt"
+kibana.external_url: ${KIBANA_HOST_PORT}

@@ -27,6 +27,25 @@ secrets:
     file: ./secrets/certs/kibana/kibana.key
 
 services:
+  mysql:
+    image: mysql:8
+    #container_name: sem_mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: books
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./data/:/docker-entrypoint-initdb.d/
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "10k"
+            max-file: "10"
+ 
   elasticsearch:
     image: elastdocker/elasticsearch:${ELK_VERSION}
     build:
@@ -81,6 +100,7 @@ services:
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - ./logstash/config/queries/:/usr/share/logstash/config/queries/
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
     secrets:
       - source: elastic.ca
@@ -96,6 +116,29 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-s" ,"-XGET", "http://127.0.0.1:9600"]
 
+  enterprisesearch:
+    image: elastdocker/enterprisesearch:${ELK_VERSION}
+    build:
+      context: enterprisesearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: unless-stopped
+    volumes:
+      - ./enterprisesearch/config/enterprise-search.yml:/usr/share/enterprise-search/config/enterprise-search.yml:ro
+    secrets:
+      - source: elastic.ca
+        target: /certs/ca.crt
+    environment:
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      KIBANA_HOST_PORT: http://${KIBANA_HOST}:${KIBANA_PORT}
+      ES_JAVA_OPTS: "-Xmx${ENTERPRISESEARCH_HEAP} -Xms${ENTERPRISESEARCH_HEAP} -Dlog4j2.formatMsgNoLookups=true"
+    ports:
+      - "3002:3002"
+    healthcheck:
+      test: ["CMD", "curl", "-s" ,"-XGET", "http://127.0.0.1:3002"]
+
   kibana:
     image: elastdocker/kibana:${ELK_VERSION}
     build:
@@ -109,6 +152,8 @@ services:
       ELASTIC_USERNAME: ${ELASTIC_USERNAME}
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ELASTICSEARCH_HOST_PORT: https://${ELASTICSEARCH_HOST}:${ELASTICSEARCH_PORT}
+      ENTERPRISESEARCH_HOST_PORT: http://${ENTERPRISESEARCH_HOST}:${ENTERPRISESEARCH_PORT}
+      KIBANA_PUBLIC_BASE_URL: https://${KIBANA_PUBLIC_HOST}:${KIBANA_PORT}
     env_file:
       - ./secrets/.env.kibana.token
     secrets:

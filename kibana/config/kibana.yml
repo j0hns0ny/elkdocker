@@ -4,9 +4,13 @@
 #
 server.name: kibana
 server.host: "0.0.0.0"
+server.publicBaseUrl: "${KIBANA_PUBLIC_BASE_URL}"
 
 # Elasticsearch Connection
 elasticsearch.hosts: [ "${ELASTICSEARCH_HOST_PORT}" ]
+
+# Enterprisesearch Connection
+enterpriseSearch.host: "${ENTERPRISESEARCH_HOST_PORT}"
 
 # SSL settings
 server.ssl.enabled: true
