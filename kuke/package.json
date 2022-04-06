@@ -1,0 +1,16 @@
+{
+  "name": "kuke",
+  "version": "1.0.0",
+  "description": "",
+  "main": "kml.js",
+  "scripts": {
+    "kml": "node kml.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.26.1",
+    "mysql2": "^2.3.3"
+  }
+}
