@@ -23,7 +23,7 @@ async function index_documents(sql, skip, page, doc) {
             baseURL: 'http://localhost:3002/api/as/v1/engines',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer private-mkhkyck89jjmnho7rzdicj4x'
+              'Authorization': 'Bearer private-zfgpdow7er93m859wpuo4snv'
             }
           });
         skip += rows.length;
