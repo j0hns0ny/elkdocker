@@ -1,4 +1,7 @@
 import moment from "moment";
+import md5 from "md5";
+import axios from "axios"
+import urlEncode from "urlencode"
 
 import AppSearchAPIConnector from "@elastic/search-ui-app-search-connector";
 
@@ -51,11 +54,11 @@ const config = {
   alwaysSearchOnInitialLoad: true,
   searchQuery: {
     result_fields: {
-      album_id: { raw: {} },
-      category_name: { raw: {} },
-      label_name: { raw: {} },
-      album_url: { raw: {} },
-      album_cover: {raw: {} },
+      album_id: {raw: {}},
+      category_name: {raw: {}},
+      label_name: {raw: {}},
+      album_url: {raw: {}},
+      album_cover: {raw: {}},
       album_cname: {
         snippet: {
           size: 100,
@@ -86,7 +89,7 @@ const config = {
             fallback: true
           }
         },
-        album_url: {raw:{}}
+        album_url: {raw: {}}
       }
     },
     suggestions: {
@@ -103,8 +106,8 @@ const config = {
 export default function App() {
   return (
     <SearchProvider config={config}>
-      <WithSearch mapContextToProps={({ wasSearched }) => ({ wasSearched })}>
-        {({ wasSearched }) => {
+      <WithSearch mapContextToProps={({wasSearched}) => ({wasSearched})}>
+        {({wasSearched}) => {
           return (
             <div className="App">
               <ErrorBoundary>
@@ -123,12 +126,43 @@ export default function App() {
                       }}
                       autocompleteSuggestions={true}
                       debounceLength={0}
+                      /*onSubmit={(searchTerm) => {
+                        //Translate with baidu，APPID+Secret is for test purpose only.
+                        //In Production，this should be done on server side.
+                        //https://fanyi-api.baidu.com/api/trans/vip/translate
+                        const appid = '20220407001162139';
+                        const key = 'uV1MjGFfe2Tlr2vttfKF';
+                        const salt = (new Date).getTime();
+                        const query = searchTerm;
+                        // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
+                        const from = 'en';
+                        const to = 'zh';
+                        const str1 = appid + query + salt + key;
+                        const sign = md5(str1);
+                        //const query_encoded = urlEncode.encode(query);
+
+                        axios.get('http://api.fanyi.baidu.com/api/trans/vip/translate',
+                          {
+                            data: {
+                              q: query,
+                              appid: appid,
+                              salt: salt,
+                              from: from,
+                              to: to,
+                              sign: sign
+                            }
+                          })
+                          .then((res) => {
+                            console.log(res);
+                          });
+                        //navigate("/search?q=" + searchTerm);
+                      }}*/
                     />
                   }
                   sideContent={
                     <div>
                       {wasSearched && (
-                        <Sorting label={"Sort by"} sortOptions={SORT_OPTIONS} />
+                        <Sorting label={"Sort by"} sortOptions={SORT_OPTIONS}/>
                       )}
                     </div>
                   }
@@ -142,11 +176,11 @@ export default function App() {
                   }
                   bodyHeader={
                     <>
-                      {wasSearched && <PagingInfo />}
-                      {wasSearched && <ResultsPerPage />}
+                      {wasSearched && <PagingInfo/>}
+                      {wasSearched && <ResultsPerPage/>}
                     </>
                   }
-                  bodyFooter={<Paging />}
+                  bodyFooter={<Paging/>}
                 />
               </ErrorBoundary>
             </div>
