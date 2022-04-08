@@ -1,13 +1,11 @@
-import moment from "moment";
 import md5 from "md5";
 import axios from "axios"
-import urlEncode from "urlencode"
+import jsonpAdapter from "axios-jsonp"
 
 import AppSearchAPIConnector from "@elastic/search-ui-app-search-connector";
 
 import {
   ErrorBoundary,
-  Facet,
   SearchProvider,
   SearchBox,
   Results,
@@ -18,10 +16,7 @@ import {
   WithSearch
 } from "@elastic/react-search-ui";
 import {
-  BooleanFacet,
   Layout,
-  SingleSelectFacet,
-  SingleLinksFacet
 } from "@elastic/react-search-ui-views";
 import "@elastic/react-search-ui-views/lib/styles/styles.css";
 
@@ -106,8 +101,8 @@ const config = {
 export default function App() {
   return (
     <SearchProvider config={config}>
-      <WithSearch mapContextToProps={({wasSearched}) => ({wasSearched})}>
-        {({wasSearched}) => {
+      <WithSearch mapContextToProps={({wasSearched,setSearchTerm}) => ({wasSearched,setSearchTerm})}>
+        {({wasSearched,setSearchTerm}) => {
           return (
             <div className="App">
               <ErrorBoundary>
@@ -126,37 +121,41 @@ export default function App() {
                       }}
                       autocompleteSuggestions={true}
                       debounceLength={0}
-                      /*onSubmit={(searchTerm) => {
+                      onSubmit={(searchTerm) => {
                         //Translate with baidu，APPID+Secret is for test purpose only.
                         //In Production，this should be done on server side.
-                        //https://fanyi-api.baidu.com/api/trans/vip/translate
                         const appid = '20220407001162139';
                         const key = 'uV1MjGFfe2Tlr2vttfKF';
-                        const salt = (new Date).getTime();
+                        const salt = (new Date()).getTime();
                         const query = searchTerm;
                         // 多个query可以用\n连接  如 query='apple\norange\nbanana\npear'
-                        const from = 'en';
-                        const to = 'zh';
+                        const from = 'auto';
+                        const to = 'en';
                         const str1 = appid + query + salt + key;
                         const sign = md5(str1);
-                        //const query_encoded = urlEncode.encode(query);
 
-                        axios.get('http://api.fanyi.baidu.com/api/trans/vip/translate',
+                        axios.get('https://fanyi-api.baidu.com/api/trans/vip/translate',
                           {
-                            data: {
+                            params:{
                               q: query,
                               appid: appid,
                               salt: salt,
                               from: from,
                               to: to,
                               sign: sign
-                            }
+                            },
+                            adapter: jsonpAdapter
                           })
                           .then((res) => {
-                            console.log(res);
+                            let finalSearchTerm = searchTerm;
+                            res.data.trans_result.forEach((r)=>{finalSearchTerm += " "+r.dst; });
+                            setSearchTerm(finalSearchTerm, { shouldClearFilters:true });
+                          })
+                          .catch((error)=>{
+                            setSearchTerm(searchTerm, { shouldClearFilters:true});
                           });
                         //navigate("/search?q=" + searchTerm);
-                      }}*/
+                      }}
                     />
                   }
                   sideContent={
