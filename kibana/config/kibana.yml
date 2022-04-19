@@ -1,7 +1,8 @@
 ---
 ## Default Kibana configuration from Kibana base image.
 ## https://github.com/elastic/kibana/blob/master/src/dev/build/tasks/os_packages/docker_generator/templates/kibana_yml.template.js
-#
+
+#i18n.locale: zh-CN
 server.name: kibana
 server.host: "0.0.0.0"
 server.publicBaseUrl: "${KIBANA_PUBLIC_BASE_URL}"
