@@ -6,18 +6,16 @@ import AppSearchAPIConnector from "@elastic/search-ui-app-search-connector";
 
 import {
   ErrorBoundary,
-  SearchProvider,
-  SearchBox,
-  Results,
-  PagingInfo,
-  ResultsPerPage,
   Paging,
+  PagingInfo,
+  Results,
+  ResultsPerPage,
+  SearchBox,
+  SearchProvider,
   Sorting,
   WithSearch
 } from "@elastic/react-search-ui";
-import {
-  Layout,
-} from "@elastic/react-search-ui-views";
+import {Layout,} from "@elastic/react-search-ui-views";
 import "@elastic/react-search-ui-views/lib/styles/styles.css";
 
 const SORT_OPTIONS = [
@@ -50,7 +48,7 @@ const config = {
   searchQuery: {
     result_fields: {
       album_id: {raw: {}},
-      category_name: {raw: {}},
+      //category_name: {raw: {}},
       label_name: {raw: {}},
       album_url: {raw: {}},
       album_cover: {raw: {}},
@@ -101,8 +99,8 @@ const config = {
 export default function App() {
   return (
     <SearchProvider config={config}>
-      <WithSearch mapContextToProps={({wasSearched,setSearchTerm}) => ({wasSearched,setSearchTerm})}>
-        {({wasSearched,setSearchTerm}) => {
+      <WithSearch mapContextToProps={({wasSearched, setSearchTerm}) => ({wasSearched, setSearchTerm})}>
+        {({wasSearched, setSearchTerm}) => {
           return (
             <div className="App">
               <ErrorBoundary>
@@ -117,13 +115,13 @@ export default function App() {
                         titleField: "album_cname",
                         urlField: "album_url",
                         shouldTrackClickThrough: true,
-                        clickThroughTags: ["test"]
+                        clickThroughTags: ["auto"]
                       }}
                       autocompleteSuggestions={true}
                       debounceLength={0}
                       onSubmit={(searchTerm) => {
-                        //Translate with baidu，APPID+Secret is for test purpose only.
-                        //In Production，this should be done on server side.
+                        //Translation with baidu，This is for test purpose only.
+                        //It should be done on server side to protect APPID+Secret in production.
                         const appid = '20220407001162139';
                         const key = 'uV1MjGFfe2Tlr2vttfKF';
                         const salt = (new Date()).getTime();
@@ -134,9 +132,11 @@ export default function App() {
                         const str1 = appid + query + salt + key;
                         const sign = md5(str1);
 
+                        setSearchTerm(searchTerm, { shouldClearFilters:true});
+                        /*
                         axios.get('https://fanyi-api.baidu.com/api/trans/vip/translate',
                           {
-                            params:{
+                            params: {
                               q: query,
                               appid: appid,
                               salt: salt,
@@ -148,12 +148,15 @@ export default function App() {
                           })
                           .then((res) => {
                             let finalSearchTerm = searchTerm;
-                            res.data.trans_result.forEach((r)=>{finalSearchTerm += " "+r.dst; });
-                            setSearchTerm(finalSearchTerm, { shouldClearFilters:true });
+                            res.data.trans_result.forEach((r) => {
+                              finalSearchTerm += " " + r.dst;
+                            });
+                            setSearchTerm(finalSearchTerm, {shouldClearFilters: true});
                           })
-                          .catch((error)=>{
-                            setSearchTerm(searchTerm, { shouldClearFilters:true});
+                          .catch((error) => {
+                            setSearchTerm(searchTerm, {shouldClearFilters: true});
                           });
+                          */
                         //navigate("/search?q=" + searchTerm);
                       }}
                     />
@@ -171,6 +174,7 @@ export default function App() {
                       urlField="album_url"
                       thumbnailField="album_cover"
                       shouldTrackClickThrough={true}
+                      clickThroughTags= {["body"]}
                     />
                   }
                   bodyHeader={
